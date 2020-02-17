@@ -1,3 +1,5 @@
+require "kemal"
+require "cc-alpha"
 require "./delta/*"
 
 module Delta
