@@ -2,10 +2,9 @@ class Delta
   private def self.kemal_config
     ws "/" do |socket|
       @@updateTargets.push socket
-      socket.send CC.boards[0].to_json
 
       socket.on_close do |_|
-        CC.sockets.delete(socket)
+        @@updateTargets.delete socket
         puts "Closed socket: #{socket}"
       end
     end
@@ -20,13 +19,6 @@ class Delta
     post "/new" do |env|
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       yeem = JSON.parse(env.request.body.not_nil!).as_h
-      # CC.validate_create yeem
-      puts yeem["board"]
-      post_settings =
-      thread_settings =
-      puts "board:#{yeem["board"]}:threads"
-
-      puts "{}"
       "nerd"
     end
 

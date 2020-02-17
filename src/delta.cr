@@ -2,12 +2,12 @@ require "kemal"
 require "cc-alpha"
 require "./delta/*"
 
-module Delta
+class Delta
   VERSION = "0.1.0"
-  @@redis = Redis.new
   @@updateTargets = [] of HTTP::WebSocket
 
   def self.run
+    kemal_config
 
   end
 end

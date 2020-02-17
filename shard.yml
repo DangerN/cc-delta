@@ -9,7 +9,6 @@ dependencies:
     github: stefanwille/crystal-redis
     version: ~> 2.5.3
   cc-alpha:
-    version: ~> 0.1.0
     github: DangerN/cc-alpha
   kemal:
     github: kemalcr/kemal
