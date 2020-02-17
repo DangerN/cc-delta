@@ -8,7 +8,8 @@ class Delta
 
   def self.run
     kemal_config
-
+    load_image
+    Kemal.run
   end
 end
 

@@ -19,6 +19,7 @@ class Delta
     post "/new" do |env|
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       yeem = JSON.parse(env.request.body.not_nil!).as_h
+      puts yeem
       "nerd"
     end
 
