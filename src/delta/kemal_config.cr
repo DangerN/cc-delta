@@ -1,8 +1,12 @@
 class Delta
+
+  # Configure the behavior of the server
   private def self.kemal_config
     ws "/" do |socket|
       @@updateTargets.push socket
-
+      puts "Socket opened: #{socket}"
+      socket.send Alpha.boards.to_json
+      # Remove target from list on socket close.
       socket.on_close do |_|
         @@updateTargets.delete socket
         puts "Closed socket: #{socket}"
@@ -16,6 +20,7 @@ class Delta
         })
     end
 
+    #
     post "/new" do |env|
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       yeem = JSON.parse(env.request.body.not_nil!).as_h
