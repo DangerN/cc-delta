@@ -13,4 +13,18 @@ class Delta
   end
 end
 
+module Alpha
+  class Post
+    def initialize(id, name, subject, text, media_name)
+      @id = id
+      @name = name
+      @subject = subject
+      @text = text
+      @media_name = media_name
+      @badges = [] of String
+      @flags = [] of String
+    end
+  end
+end
+
 Delta.run

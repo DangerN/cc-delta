@@ -26,7 +26,7 @@ class Delta
       text = nil
       subject = nil
       thread = nil
-      board = nil
+      board_id = nil
 
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       HTTP::FormData.parse(env.request) do |part|
@@ -40,18 +40,19 @@ class Delta
         when "thread"
           thread = part.body.gets_to_end
         when "board"
-          board = part.body.gets_to_end
+          board_id = part.body.gets_to_end
         end
       end
 
       if (thread != nil)
-        p Alpha.boards[board].id
+        board = Alpha.boards[board_id]
+        board.post_count += 1
+        new_post = Alpha::Post.new(board.post_count, name.not_nil!, subject.not_nil!, text.not_nil!, "")
+        board.threads[thread].posts.push(new_post)
       end
-      p name
-      p text
-      p subject
-      p thread
-      p board
+
+      @@updateTargets.each { |socket| socket.send Alpha.boards.to_json }
+
       "nerd"
     end
 
