@@ -27,6 +27,7 @@ class Delta
       subject = nil
       thread = nil
       board_id = nil
+      file = nil
 
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       HTTP::FormData.parse(env.request) do |part|
@@ -41,8 +42,12 @@ class Delta
           thread = part.body.gets_to_end
         when "board"
           board_id = part.body.gets_to_end
+        when "file"
+          file = part.body.gets_to_end
         end
       end
+
+      p file
 
       if (thread != nil)
         board = Alpha.boards[board_id]
