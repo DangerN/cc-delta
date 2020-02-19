@@ -22,9 +22,36 @@ class Delta
 
     #
     post "/new" do |env|
+      name = nil
+      text = nil
+      subject = nil
+      thread = nil
+      board = nil
+
       headers(env, {"Access-Control-Allow-Origin" => "*"})
-      yeem = JSON.parse(env.request.body.not_nil!).as_h
-      puts yeem
+      HTTP::FormData.parse(env.request) do |part|
+        case part.name
+        when "name"
+          name = part.body.gets_to_end
+        when "text"
+          text = part.body.gets_to_end
+        when "subject"
+          subject = part.body.gets_to_end
+        when "thread"
+          thread = part.body.gets_to_end
+        when "board"
+          board = part.body.gets_to_end
+        end
+      end
+
+      if (thread != nil)
+        p Alpha.boards[board].id
+      end
+      p name
+      p text
+      p subject
+      p thread
+      p board
       "nerd"
     end
 
