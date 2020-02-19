@@ -22,13 +22,13 @@ class Delta
 
     #
     post "/new" do |env|
-      name = nil
-      text = nil
-      subject = nil
+      name = ""
+      text = ""
+      subject = ""
       thread = nil
       board_id = nil
       file = nil
-      # file_data = nil
+      media = ""
 
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       HTTP::FormData.parse(env.request) do |part|
@@ -45,17 +45,23 @@ class Delta
           board_id = part.body.gets_to_end
         when "file"
           file = part
+          file_parts = part.filename.not_nil!.split('.')
           echo_connection = HTTP::Client.new(host: "0.0.0.0", port: "3001")
-          p part.headers
-          response = echo_connection.post("/delta", headers: part.headers, body: part.body)
-          p response
+          headers = HTTP::Headers{
+            "Content-Type"=>"application/octet-stream",
+            "File-Name"=> file_parts[0],
+            "File-Extension"=> file_parts[1]
+          }
+          media = file_parts[0]
+          response = echo_connection.post("/media", headers: headers, body: part.body.gets_to_end)
         end
       end
 
       if (thread != nil)
+
         board = Alpha.boards[board_id]
         board.post_count += 1
-        new_post = Alpha::Post.new(board.post_count, name.not_nil!, subject.not_nil!, text.not_nil!, "")
+        new_post = Alpha::Post.new(board.post_count, name.not_nil!, subject.not_nil!, text.not_nil!, media.not_nil!)
         board.threads[thread].posts.push(new_post)
       end
 
