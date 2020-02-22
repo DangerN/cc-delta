@@ -27,7 +27,6 @@ class Delta
       subject = ""
       thread = nil
       board_id = nil
-      file = nil
       media = ""
 
       headers(env, {"Access-Control-Allow-Origin" => "*"})
@@ -44,16 +43,17 @@ class Delta
         when "board"
           board_id = part.body.gets_to_end
         when "file"
-          file = part
-          file_parts = part.filename.not_nil!.split('.')
-          echo_connection = HTTP::Client.new(host: "0.0.0.0", port: "3001")
-          headers = HTTP::Headers{
-            "Content-Type"=>"application/octet-stream",
-            "File-Name"=> file_parts[0],
-            "File-Extension"=> file_parts[1]
-          }
-          media = file_parts[0]
-          response = echo_connection.post("/media", headers: headers, body: part.body.gets_to_end)
+          if (!part.filename.nil?)
+            file_parts = part.filename.not_nil!.split('.')
+            echo_connection = HTTP::Client.new(host: "0.0.0.0", port: "3001")
+            headers = HTTP::Headers{
+              "Content-Type"=>"application/octet-stream",
+              "File-Name"=> file_parts[0],
+              "File-Extension"=> file_parts[1]
+            }
+            media = file_parts[0]
+            response = echo_connection.post("/media", headers: headers, body: part.body.gets_to_end)
+          end
         end
       end
 
