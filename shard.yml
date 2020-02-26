@@ -5,9 +5,8 @@ authors:
   - your-name-here <cdneal091@gmail.com>
 
 dependencies:
-  redis:
-    github: stefanwille/crystal-redis
-    version: ~> 2.5.3
+  pg:
+    github: will/crystal-pg
   cc-alpha:
     github: DangerN/cc-alpha
   kemal:
