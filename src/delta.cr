@@ -1,4 +1,5 @@
-require "kemal"
+require "db"
+require "pg"
 require "redis"
 require "cc-alpha"
 require "./delta/*"
@@ -7,7 +8,7 @@ class Delta
   VERSION = "0.1.0"
   @@updateTargets = [] of HTTP::WebSocket
 
-  
+
   def self.run
     kemal_config
     load_image
@@ -27,6 +28,10 @@ module Alpha
       @flags = [] of String
     end
   end
+end
+
+DB.connect("postgres://localhost:5432/cc-db") do |cnn|
+  p cnn
 end
 
 # Delta.run
