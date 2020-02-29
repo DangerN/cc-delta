@@ -1,6 +1,6 @@
 require "db"
 require "pg"
-require "redis"
+require "kemal"
 require "cc-alpha"
 require "./delta/*"
 
@@ -28,10 +28,25 @@ module Alpha
       @flags = [] of String
     end
   end
+  class Board
+    def initialize(id, name, flags, thread_limit)
+      @id = id
+      @name = name
+      @flags = flags
+      @threads = {} of String => Thread
+      @thread_limit = thread_limit.to_u8 || 25.to_u8
+      @post_count = 0.to_u64
+      @thread_count = 0.to_u64
+    end
+  end
+  class Thread
+    def initialize(id, flags, post_limit)
+      @id = id
+      @flags = flags
+      @post_limit = post_limit
+      @posts = [] of Post
+    end
+  end
 end
 
-DB.connect("postgres://localhost:5432/cc-db") do |cnn|
-  p cnn
-end
-
-# Delta.run
+Delta.run
