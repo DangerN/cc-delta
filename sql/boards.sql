@@ -9,7 +9,7 @@ create table boards (
 
 insert into boards (id, name, flags)
 values
-('test', 'Tesing Board', '{"test","sfw"}'),
+('vg', 'Video Games', '{"sfw"}'),
 ('ck', 'Food and Cooking', '{"sfw"}'),
 ('fit', 'Fitness', '{"gay","sfw"}'),
 ('3', '3D Computer Graphics', '{"sfw"}'),
