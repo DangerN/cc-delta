@@ -10,12 +10,14 @@ class Delta
     end
 
     Alpha.boards.each_key do |board|
-      db.query "select * from \"3_threads\"" do |rs|
+      db.query "select * from \"${board}_threads\"" do |rs|
         rs.each do
           id, flags, post_limit = rs.read(Int32, Array(String), Int16)
           Alpha.boards[board].threads[id.to_s] = Alpha::Thread.new(id.to_u64, flags, post_limit.to_u16)
         end
       end
+      # db.query "select * from "
+      p Alpha.boards.keys
     end
 
     db.close
