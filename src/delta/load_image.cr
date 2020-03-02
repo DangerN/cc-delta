@@ -21,7 +21,7 @@ class Delta
           rs.each do
             id, badges, flags, media_name, subject, name, text, time_stamp =
               rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)
-            p Alpha::Post.new(id, name, subject, text, media_name, badges, flags, time_stamp)
+            p Alpha::Post.new(id.to_u64, name, subject, text, media_name, badges, flags, time_stamp)
           end
         end
       end
