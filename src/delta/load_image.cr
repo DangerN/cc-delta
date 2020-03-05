@@ -21,7 +21,8 @@ class Delta
           rs.each do
             id, badges, flags, media_name, subject, name, text, time_stamp =
               rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)
-            p Alpha::Post.new(id.to_u64, name, subject, text, media_name, badges, flags, time_stamp)
+            # TODO: Fix this nonsense. Maybe use Int64 as `Thread` key ini `Board` instead of strings.
+            Alpha.boards[board].threads[thread.id.to_s].posts.push(Alpha::Post.new(id.to_u64, name, subject, text, media_name, badges, flags, time_stamp))
           end
         end
       end
