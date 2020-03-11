@@ -18,6 +18,7 @@ class Delta
       end
       Alpha.boards[board].threads.values.each do |thread|
         db.query "select * from \"#{board}_posts\" where thread_id=#{thread.id}" do |rs|
+          # TODO: move this logic to a handler, as it is shared with new most creation, maybe even into Alpha.
           rs.each do
             id, badges, flags, media_name, subject, name, text, time_stamp =
               rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)

@@ -28,20 +28,29 @@ class Delta
       thread = nil
       board_id = nil
       media = ""
+      badges = [] of String
+      flags = [] of String
+
+      post_params = {} of String => String
 
       headers(env, {"Access-Control-Allow-Origin" => "*"})
       HTTP::FormData.parse(env.request) do |part|
         case part.name
         when "name"
           name = part.body.gets_to_end
+          post_params.["name"] = part.body.gets_to_end
         when "text"
           text = part.body.gets_to_end
+          post_params.["text"] = part.body.gets_to_end
         when "subject"
           subject = part.body.gets_to_end
+          post_params.["subject"] = part.body.gets_to_end
         when "thread"
           thread = part.body.gets_to_end
+          post_params.["thread"] = part.body.gets_to_end
         when "board"
           board_id = part.body.gets_to_end
+          post_params.["board"] = part.body.gets_to_end
         when "file"
           if (!part.filename.nil?)
             file_parts = part.filename.not_nil!.split('.')
@@ -52,14 +61,25 @@ class Delta
               "File-Extension"=> file_parts[1]
             }
             media = file_parts[0]
+            post_params.["media"] = file_parts[0]
             response = echo_connection.post("/media", headers: headers, body: part.body.gets_to_end)
           end
         end
       end
 
       if (thread != nil)
-
+        db = DB.open "postgres://localhost:5432/cc-db"
         # board = Alpha.boards[board_id]
+        p "attempt to insert into database"
+        db.query("insert into \"#{board_id}_posts\" (badges, flags, media_name, subject, name, text, thread_id) values ($1, $2, $3, $4, $5, $6, $7) returning *;", badges, flags, media, subject, name, text, thread) do |rs|
+          rs.each do
+            id, badges, flags, media_name, subject, name, text, time_stamp =
+              rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)
+              p "attempt to add post"
+              Alpha.boards[board_id].threads[thread.to_s].posts.push(Alpha::Post.new(id.to_u64, name, subject, text, media_name, badges, flags, time_stamp))
+          end
+        end
+        # newer_post = Alpha::Post.new(post_params)
         # new_post = Alpha::Post.new( name.not_nil!, subject.not_nil!, text.not_nil!, media.not_nil!)
         # board.threads[thread].posts.push(new_post)
       end

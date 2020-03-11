@@ -3,7 +3,7 @@ class Delta
     p message
   end
 
-  def self.handle_new_post(argument)
+  def self.handle_new_post()
 
   end
 end
