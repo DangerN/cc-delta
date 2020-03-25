@@ -22,14 +22,14 @@ class Delta
 
     #
     post "/new" do |env|
-      name = ""
-      text = ""
-      subject = ""
-      thread = nil
-      board_id = nil
-      media = ""
-      badges = [] of String
-      flags = [] of String
+      # name = ""
+      # text = ""
+      # subject = ""
+      # thread = nil
+      # board_id = nil
+      # media = ""
+      # badges = [] of String
+      # flags = [] of String
 
       post_params = {} of String => String
 
@@ -67,46 +67,10 @@ class Delta
         end
       end
 
-      if (thread != nil)
-        db = DB.open "postgres://localhost:5432/cc-db"
-        # board = Alpha.boards[board_id]
-        p "attempt to insert into database"
-        db.query("insert into \"#{board_id}_posts\" (badges, flags, media_name, subject, name, text, thread_id) values ($1, $2, $3, $4, $5, $6, $7) returning *;", badges, flags, media, subject, name, text, thread) do |rs|
-          rs.each do
-            id, badges, flags, media_name, subject, name, text, time_stamp =
-              rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)
-              p "attempt to add post"
-              Alpha.boards[board_id].threads[thread.to_s].posts.push(Alpha::Post.new(id.to_u64, name, subject, text, media_name, badges, flags, time_stamp))
-          end
-        end
-        db.close
-      end
-
-      if (thread == nil)
-        p "attempt to start new thread"
-        db = DB.open "postgres://localhost:5432/cc-db"
-        db.query("insert into \"#{board_id}_threads\" (flags) values ($1) returning *", flags) do |rs|
-          p "added thread"
-          rs.each do
-            id, flags, post_limit = rs.read(Int32, Array(String), Int16)
-            thread = id
-            p "inserting thread"
-            Alpha.boards[board_id].threads[thread.to_s] = Alpha::Thread.new(id.to_u64, flags, post_limit.to_u16)
-            p "inserted thread"
-          end
-        end
-
-        p "adding post"
-        db.query("insert into \"#{board_id}_posts\" (badges, flags, media_name, subject, name, text, thread_id) values ($1, $2, $3, $4, $5, $6, $7) returning *;", badges, flags, media, subject, name, text, thread) do |rs|
-          rs.each do
-            id, badges, flags, media_name, subject, name, text, time_stamp =
-              rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)
-              Alpha.boards[board_id].threads[thread.to_s].posts.push(Alpha::Post.new(id.to_u64, name, subject, text, media_name, badges, flags, time_stamp))
-          end
-        end
-
-        db.close
-        p thread
+      if (post_params["thread"] != nil)
+        handle_new_post(post_params)
+      else
+        handle_new_thread(post_params, [""])
       end
 
       @@updateTargets.each { |socket| socket.send Alpha.boards.to_json }
