@@ -25,6 +25,8 @@ class Delta
 
       form_data = process_formData(env.request)
 
+      p form_data
+
       if (form_data["thread"] != nil)
         handle_new_post(form_data)
       else

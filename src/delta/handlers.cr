@@ -1,6 +1,6 @@
 class Delta
   def self.process_formData(request)
-    post_params = {} of String => String
+    post_params = {} of String => (String | Array(String))
 
     HTTP::FormData.parse(request) do |part|
       case part.name
@@ -29,14 +29,19 @@ class Delta
         end
       end
     end
+    # TODO: Verify post_params is complete to inserted into the db
+    post_params["badges"] ||= [""]
+    post_params["flags"] ||= [""]
+    post_params["media"] ||= ""
+
     post_params
   end
 
   def self.handle_new_post(params)
     db = DB.open "postgres://localhost:5432/cc-db"
-    board_id = params["board_id"]
+    board_id = params["board"]
     thread = params["thread"]
-    db.query("insert into \"#{params["board_id"]}_posts\" (badges, flags, media_name, subject, name, text, thread_id) values ($1, $2, $3, $4, $5, $6, $7) returning *;", params["badges"], params["flags"], params["media"], params["subject"], params["name"], params["text"], params["thread"]) do |rs|
+    db.query("insert into \"#{board_id}_posts\" (badges, flags, media_name, subject, name, text, thread_id) values ($1, $2, $3, $4, $5, $6, $7) returning *;", params["badges"], params["flags"], params["media"], params["subject"], params["name"], params["text"], params["thread"]) do |rs|
       rs.each do
         id, badges, flags, media_name, subject, name, text, time_stamp =
           rs.read(Int64, Array(String), Array(String), String, String, String, String, Time)
@@ -48,7 +53,7 @@ class Delta
 
   def self.handle_new_thread(params, flags)
     p "attempt to start new thread"
-    board_id = params["board_id"]
+    board_id = params["board"]
     thread = nil
     db = DB.open "postgres://localhost:5432/cc-db"
     db.query("insert into \"#{board_id}_threads\" (flags) values ($1) returning *", flags) do |rs|
